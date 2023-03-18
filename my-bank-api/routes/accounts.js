@@ -104,4 +104,36 @@ router.delete('/:id', async (req, res) => {
     res.end();
 });
 
+// PATCH request in '/updateBalance'
+// Update account's balance based on request body (id, balance)
+router.patch('/updateBalance', async (req, res) => {
+
+    try {
+        // get current list of accounts
+        const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
+
+        // account to be updated
+        const updatedAccount = req.body;
+
+        // find account's index in account list
+        const accountIndex = currentAccounts.accounts.findIndex(
+            (acc) => acc.id === updatedAccount.id
+        );
+
+        // update account in account list
+        currentAccounts.accounts[accountIndex].balance = updatedAccount.balance;
+        
+        // save updated accounts list to disk
+        await fs.writeFile(global.fileName, JSON.stringify(currentAccounts, null, 2));
+        
+        // return updated account to user
+        res.send(currentAccounts.accounts[accountIndex]);
+
+    } catch (error) {
+        res.status(400).send({ error: error.message });
+    }
+
+    res.end();
+});
+
 export default router;
