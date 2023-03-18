@@ -5,7 +5,7 @@ const router = express.Router();
 
 // POST request in '/'
 // Creates a new account
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
 
     let newAccount = req.body;
 
@@ -27,7 +27,7 @@ router.post('/', async (req, res) => {
         res.send(newAccount);
 
     } catch (error) {
-        res.status(400).send({ error: error.message });
+        next(error);
     }
 
     res.end();
@@ -36,7 +36,7 @@ router.post('/', async (req, res) => {
 
 // GET request in '/'
 // Returns all accounts
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
 
     try {
         // get current list of accounts
@@ -47,7 +47,7 @@ router.get('/', async (req, res) => {
         res.send(currentAccounts);
 
     } catch (error) {
-        res.status(400).send({ error: error.message });
+        next(error);
     }
 
     res.end();
@@ -56,7 +56,7 @@ router.get('/', async (req, res) => {
 
 // GET request in '/:id'
 // Returns specific accounts
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req, res, next) => {
 
     try {
         // get current list of accounts
@@ -72,7 +72,7 @@ router.get('/:id', async (req, res) => {
         res.send(requestedAccount);
 
     } catch (error) {
-        res.status(400).send({ error: error.message });
+        next(error);
     }
 
     res.end();
@@ -81,7 +81,7 @@ router.get('/:id', async (req, res) => {
 
 // DELETE request in '/:id'
 // Delete specific account
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req, res, next) => {
 
     try {
         // get current list of accounts
@@ -98,15 +98,16 @@ router.delete('/:id', async (req, res) => {
         res.end();
 
     } catch (error) {
-        res.status(400).send({ error: error.message });
+        next(error);
     }
 
     res.end();
 });
 
+
 // PATCH request in '/updateBalance'
 // Update account's balance based on request body (id, balance)
-router.patch('/updateBalance', async (req, res) => {
+router.patch('/updateBalance', async (req, res, next) => {
 
     try {
         // get current list of accounts
@@ -130,10 +131,17 @@ router.patch('/updateBalance', async (req, res) => {
         res.send(currentAccounts.accounts[accountIndex]);
 
     } catch (error) {
-        res.status(400).send({ error: error.message });
+        next(error);
     }
 
     res.end();
 });
+
+
+// Generic error handling for all routes
+router.use((err, req, res, next) => {
+    res.status(400).send({ error: err.message });
+});
+
 
 export default router;
