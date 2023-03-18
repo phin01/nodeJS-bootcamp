@@ -1,6 +1,6 @@
 import express from "express";
 import accountRouter from './routes/accounts.js';
-import {promises as fs} from "fs";
+import { promises as fs } from "fs";
 
 global.fileName = 'accounts.json';
 
@@ -22,7 +22,7 @@ app.listen(3000, async () => {
             accounts: []
         }
         fs.writeFile(global.fileName, JSON.stringify(initialJson))
-        .then(() => console.log('API started with initial blank data'))
-        .catch(err => console.log(err));
+            .then(() => console.log('API started with initial blank data'))
+            .catch(err => console.log(err));
     }
 });
