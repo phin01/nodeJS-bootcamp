@@ -14,7 +14,7 @@ router.post('/', async (req, res, next) => {
         const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
         
         // set new account ID and increment counter for next requests
-        newAccount = {id: currentAccounts.nextId, ...newAccount};
+        newAccount = { id: currentAccounts.nextId, ...newAccount };
         currentAccounts.nextId++;
 
         // update current list of accounts with new account
@@ -22,9 +22,10 @@ router.post('/', async (req, res, next) => {
 
         // save accounts list to disk (space = 2 for easier visualization during development)
         await fs.writeFile(global.fileName, JSON.stringify(currentAccounts, null, 2));
-        
+
         // return newly created account to user, with its ID
         res.send(newAccount);
+        global.logger.info(`POST /account - Account ${newAccount.id} created`);
 
     } catch (error) {
         next(error);
@@ -41,10 +42,11 @@ router.get('/', async (req, res, next) => {
     try {
         // get current list of accounts
         const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
-        
+
         // remove 'nextId' field before returning to the user
         delete currentAccounts.nextId;
         res.send(currentAccounts);
+        global.logger.info(`GET /account`);
 
     } catch (error) {
         next(error);
@@ -61,15 +63,16 @@ router.get('/:id', async (req, res, next) => {
     try {
         // get current list of accounts
         const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
-        
+
         // get specific account from list of accounts
         const requestedAccount = currentAccounts.accounts.find(
             (requestedAccount) => requestedAccount.id === parseInt(req.params.id)
-            );
-        if(!requestedAccount) {
+        );
+        if (!requestedAccount) {
             res.status(404).send({ error: 'Account not found' });
         }
         res.send(requestedAccount);
+        global.logger.info(`GET /account/${req.params.id}`);
 
     } catch (error) {
         next(error);
@@ -86,7 +89,7 @@ router.delete('/:id', async (req, res, next) => {
     try {
         // get current list of accounts
         const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
-        
+
         // filter accounts list excluding the deleted ID
         currentAccounts.accounts = currentAccounts.accounts.filter(
             (account) => account.id !== parseInt(req.params.id)
@@ -94,8 +97,9 @@ router.delete('/:id', async (req, res, next) => {
 
         // save updated accounts list to disk
         await fs.writeFile(global.fileName, JSON.stringify(currentAccounts, null, 2));
-        
+
         res.end();
+        global.logger.info(`DELETE /account/${req.params.id}`);
 
     } catch (error) {
         next(error);
@@ -123,12 +127,13 @@ router.patch('/updateBalance', async (req, res, next) => {
 
         // update account in account list
         currentAccounts.accounts[accountIndex].balance = updatedAccount.balance;
-        
+
         // save updated accounts list to disk
         await fs.writeFile(global.fileName, JSON.stringify(currentAccounts, null, 2));
-        
+
         // return updated account to user
         res.send(currentAccounts.accounts[accountIndex]);
+        global.logger.info(`PATCH /updateBalance - Account ${updatedAccount.id}`);
 
     } catch (error) {
         next(error);
@@ -140,6 +145,7 @@ router.patch('/updateBalance', async (req, res, next) => {
 
 // Generic error handling for all routes
 router.use((err, req, res, next) => {
+    global.logger.error(` ${req.method} /account${req.url}  ${err.message}`);
     res.status(400).send({ error: err.message });
 });
 
