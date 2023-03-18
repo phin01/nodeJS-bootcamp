@@ -11,7 +11,7 @@ router.post('/', async (req, res) => {
 
     try {
         // get current list of accounts
-        const currentAccounts = JSON.parse(await fs.readFile('accounts.json'));
+        const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
         
         // set new account ID and increment counter for next requests
         newAccount = {id: currentAccounts.nextId, ...newAccount};
@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
         currentAccounts.accounts.push(newAccount);
 
         // save accounts list to disk (space = 2 for easier visualization during development)
-        await fs.writeFile('accounts.json', JSON.stringify(currentAccounts, null, 2));
+        await fs.writeFile(global.fileName, JSON.stringify(currentAccounts, null, 2));
         
         // return newly created account to user, with its ID
         res.send(newAccount);
