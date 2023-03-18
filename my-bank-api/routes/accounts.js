@@ -126,6 +126,16 @@ router.patch('/updateBalance', async (req, res, next) => {
 
         // account to be updated
         const updatedAccount = req.body;
+        
+        // check if required fields are available
+        if(!updatedAccount.id || updatedAccount.balance == null) {
+            throw new Error("Request must have account ID and balance");
+        }
+
+        // check if balance is numeric
+        if(isNaN(updatedAccount.balance)) {
+            throw new Error("Balance must be numeric");
+        }
 
         // find account's index in account list
         const accountIndex = currentAccounts.accounts.findIndex(
@@ -133,7 +143,7 @@ router.patch('/updateBalance', async (req, res, next) => {
         );
 
         // update account in account list
-        currentAccounts.accounts[accountIndex].balance = updatedAccount.balance;
+        currentAccounts.accounts[accountIndex].balance = parseFloat(updatedAccount.balance);
 
         // save updated accounts list to disk
         await fs.writeFile(global.fileName, JSON.stringify(currentAccounts, null, 2));
