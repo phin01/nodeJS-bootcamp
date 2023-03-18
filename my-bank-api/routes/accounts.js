@@ -53,4 +53,29 @@ router.get('/', async (req, res) => {
     res.end();
 });
 
+
+// GET request in '/:id'
+// Returns specific accounts
+router.get('/:id', async (req, res) => {
+
+    try {
+        // get current list of accounts
+        const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
+        
+        // get specific account from list of accounts
+        const requestedAccount = currentAccounts.accounts.find(
+            (requestedAccount) => requestedAccount.id === parseInt(req.params.id)
+            );
+        if(!requestedAccount) {
+            res.status(404).send({ error: 'Account not found' });
+        }
+        res.send(requestedAccount);
+
+    } catch (error) {
+        res.status(400).send({ error: error.message });
+    }
+
+    res.end();
+});
+
 export default router;
