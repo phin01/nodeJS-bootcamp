@@ -7,14 +7,21 @@ const router = express.Router();
 // Creates a new account
 router.post('/', async (req, res, next) => {
 
-    let newAccount = req.body;
+    
 
     try {
         // get current list of accounts
         const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
+
+        // get new account data and validate fields
+        let newAccount = req.body;
+        if(!newAccount.name || newAccount.balance == null) {
+            throw new Error("Account must have name and balance");
+        }
         
         // set new account ID and increment counter for next requests
-        newAccount = { id: currentAccounts.nextId, ...newAccount };
+        // create object only with required fields, to avoid additional info from body
+        newAccount = { id: currentAccounts.nextId, name: newAccount.name, balance: newAccount.balance };
         currentAccounts.nextId++;
 
         // update current list of accounts with new account
