@@ -78,4 +78,30 @@ router.get('/:id', async (req, res) => {
     res.end();
 });
 
+
+// DELETE request in '/:id'
+// Delete specific account
+router.delete('/:id', async (req, res) => {
+
+    try {
+        // get current list of accounts
+        const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
+        
+        // filter accounts list excluding the deleted ID
+        currentAccounts.accounts = currentAccounts.accounts.filter(
+            (account) => account.id !== parseInt(req.params.id)
+        );
+
+        // save updated accounts list to disk
+        await fs.writeFile(global.fileName, JSON.stringify(currentAccounts, null, 2));
+        
+        res.end();
+
+    } catch (error) {
+        res.status(400).send({ error: error.message });
+    }
+
+    res.end();
+});
+
 export default router;
