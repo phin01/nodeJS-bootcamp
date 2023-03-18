@@ -33,4 +33,24 @@ router.post('/', async (req, res) => {
     res.end();
 });
 
+
+// GET request in '/'
+// Returns all accounts
+router.get('/', async (req, res) => {
+
+    try {
+        // get current list of accounts
+        const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
+        
+        // remove 'nextId' field before returning to the user
+        delete currentAccounts.nextId;
+        res.send(currentAccounts);
+
+    } catch (error) {
+        res.status(400).send({ error: error.message });
+    }
+
+    res.end();
+});
+
 export default router;
