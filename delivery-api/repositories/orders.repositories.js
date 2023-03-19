@@ -7,7 +7,7 @@ async function getOrders() {
 
 async function getCompletedOrders() {
     const currentOrders = JSON.parse(await fs.readFile(global.fileName));
-    const completedOrders = currentOrders.filter(
+    const completedOrders = currentOrders.pedidos.filter(
         (order) => order.entregue === true
     );
     return completedOrders;
