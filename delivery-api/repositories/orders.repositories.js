@@ -5,11 +5,20 @@ async function getOrders() {
     return currentOrders;
 }
 
+async function getCompletedOrders() {
+    const currentOrders = JSON.parse(await fs.readFile(global.fileName));
+    const completedOrders = currentOrders.filter(
+        (order) => order.entregue === true
+    );
+    return completedOrders;
+}
+
 async function saveOrders(orders) {
     await fs.writeFile(global.fileName, JSON.stringify(orders, null, 2));
 }
 
 export default {
     getOrders,
+    getCompletedOrders,
     saveOrders
 }
