@@ -1,30 +1,25 @@
 import { promises as fs } from "fs";
+import AccountService from '../services/account.services.js';
 
 async function createAccount(req, res, next) {
 
     try {
-        // get current list of accounts
-        const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
-
         // get new account data and validate fields
-        let newAccount = req.body;
+        const newAccount = req.body;
         if(!newAccount.name || newAccount.balance == null) {
             throw new Error("Account must have name and balance");
         }
-        
-        // set new account ID and increment counter for next requests
-        // create object only with required fields, to avoid additional info from body
-        newAccount = { id: currentAccounts.nextId, name: newAccount.name, balance: newAccount.balance };
-        currentAccounts.nextId++;
 
-        // update current list of accounts with new account
-        currentAccounts.accounts.push(newAccount);
+        // check if balance is numeric
+        if(isNaN(newAccount.balance)) {
+            throw new Error("Balance must be numeric");
+        }
 
-        // save accounts list to disk (space = 2 for easier visualization during development)
-        await fs.writeFile(global.fileName, JSON.stringify(currentAccounts, null, 2));
+        // call service to create account
+        const createdAccount = await AccountService.createAccount(newAccount);
 
         // return newly created account to user, with its ID
-        res.send(newAccount);
+        res.send(createdAccount);
         global.logger.info(`POST /account - Account ${newAccount.id} created`);
 
     } catch (error) {
@@ -38,11 +33,10 @@ async function createAccount(req, res, next) {
 async function getAccounts(req, res, next) {
     
     try {
-        // get current list of accounts
-        const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
-
-        // remove 'nextId' field before returning to the user
-        delete currentAccounts.nextId;
+        // call service to get list of accounts
+        const currentAccounts = await AccountService.getAccounts();
+        
+        // return the list to the users
         res.send(currentAccounts);
         global.logger.info(`GET /account`);
 
@@ -57,17 +51,16 @@ async function getAccounts(req, res, next) {
 async function getAccount(req, res, next) {
 
     try {
-        // get current list of accounts
-        const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
+        // call service to get specific account
+        const requestedAccount = await AccountService.getAccount(parseInt(req.params.id));
 
-        // get specific account from list of accounts
-        const requestedAccount = currentAccounts.accounts.find(
-            (requestedAccount) => requestedAccount.id === parseInt(req.params.id)
-        );
+        // if account is not found, return 404 error
+        // otherwise, return account to user
         if (!requestedAccount) {
             res.status(404).send({ error: 'Account not found' });
         }
         res.send(requestedAccount);
+        
         global.logger.info(`GET /account/${req.params.id}`);
 
     } catch (error) {
@@ -81,16 +74,14 @@ async function getAccount(req, res, next) {
 async function deleteAccount(req, res, next) {
     
     try {
-        // get current list of accounts
-        const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
+        // call service to delete specific account
+        const deleted = await AccountService.deleteAccount(parseInt(req.params.id));
 
-        // filter accounts list excluding the deleted ID
-        currentAccounts.accounts = currentAccounts.accounts.filter(
-            (account) => account.id !== parseInt(req.params.id)
-        );
-
-        // save updated accounts list to disk
-        await fs.writeFile(global.fileName, JSON.stringify(currentAccounts, null, 2));
+        // if account could not be found/deleted, return 404
+        // otherwise, end successfully
+        if (!deleted) {
+            res.status(404).send({ error: 'Account not found' });
+        }
 
         res.end();
         global.logger.info(`DELETE /account/${req.params.id}`);
@@ -106,36 +97,28 @@ async function deleteAccount(req, res, next) {
 async function updateBalance (req, res, next) {
 
     try {
-        // get current list of accounts
-        const currentAccounts = JSON.parse(await fs.readFile(global.fileName));
-
         // account to be updated
-        const updatedAccount = req.body;
+        const account = req.body;
         
         // check if required fields are available
-        if(!updatedAccount.id || updatedAccount.balance == null) {
+        if(!account.id || account.balance == null) {
             throw new Error("Request must have account ID and balance");
         }
 
         // check if balance is numeric
-        if(isNaN(updatedAccount.balance)) {
+        if(isNaN(account.balance)) {
             throw new Error("Balance must be numeric");
         }
 
-        // find account's index in account list
-        const accountIndex = currentAccounts.accounts.findIndex(
-            (acc) => acc.id === updatedAccount.id
-        );
-
-        // update account in account list
-        currentAccounts.accounts[accountIndex].balance = parseFloat(updatedAccount.balance);
-
-        // save updated accounts list to disk
-        await fs.writeFile(global.fileName, JSON.stringify(currentAccounts, null, 2));
-
+        // call service to update account balance
+        const updatedAccount = await AccountService.updateBalance(parseInt(account.id), parseFloat(account.balance));
+        if (!updatedAccount) {
+            res.status(404).send({ error: 'Account not found' });
+        }
+        
         // return updated account to user
-        res.send(currentAccounts.accounts[accountIndex]);
-        global.logger.info(`PATCH /updateBalance - Account ${updatedAccount.id}`);
+        res.send(updatedAccount);
+        global.logger.info(`PATCH /updateBalance - Account ${account.id}`);
 
     } catch (error) {
         next(error);
