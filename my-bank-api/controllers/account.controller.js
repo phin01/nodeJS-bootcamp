@@ -1,4 +1,3 @@
-import { promises as fs } from "fs";
 import AccountService from '../services/account.services.js';
 
 async function createAccount(req, res, next) {
