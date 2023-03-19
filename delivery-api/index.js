@@ -1,6 +1,7 @@
 import express from "express";
 import winston from "winston";
 import ordersRouter from './routes/orders.routes.js';
+import OrdersRepository from "./repositories/orders.repositories.js";
 
 global.fileName = 'pedidos.json';
 
@@ -34,7 +35,7 @@ app.listen(3000, async () => {
 
     // check if orders.json file exists
     try {
-        await fs.readFile(global.fileName);
+        await OrdersRepository.getOrders();
         global.logger.info('API started with existing data');
     } catch (error) {
         global.logger.error('Could not load order data');
