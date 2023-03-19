@@ -3,28 +3,10 @@ import AccountController from '../controllers/account.controller.js';
 
 const router = express.Router();
 
-// POST request in '/'
-// Creates a new account
 router.post('/', AccountController.createAccount);
-
-
-// GET request in '/'
-// Returns all accounts
 router.get('/', AccountController.getAccounts);
-
-
-// GET request in '/:id'
-// Returns specific accounts
 router.get('/:id', AccountController.getAccount);
-
-
-// DELETE request in '/:id'
-// Delete specific account
 router.delete('/:id', AccountController.deleteAccount);
-
-
-// PATCH request in '/updateBalance'
-// Update account's balance based on request body (id, balance)
 router.patch('/updateBalance', AccountController.updateBalance);
 
 
