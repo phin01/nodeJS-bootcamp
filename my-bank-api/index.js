@@ -1,7 +1,7 @@
 import express from "express";
 import winston from "winston";
 import cors from "cors";
-import accountRouter from './routes/accounts.js';
+import accountRouter from './routes/account.routes.js';
 import { promises as fs } from "fs";
 
 global.fileName = 'accounts.json';
