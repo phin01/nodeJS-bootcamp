@@ -20,6 +20,27 @@ async function clientTotal(req, res, next) {
 }
 
 
+async function productTotal(req, res, next) {
+
+    try {
+        const product = req.body.product;
+        if(!product) {
+            throw new Error("Must provide a product");
+        }
+
+        const total = await OrderService.getProductTotal(product);
+        res.send({
+            "product": product,
+            "total": total
+        });
+        
+    } catch (error) {
+        next(error);
+    }
+}
+
+
 export default {
-    clientTotal
+    clientTotal,
+    productTotal
 }

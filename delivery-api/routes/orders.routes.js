@@ -9,8 +9,8 @@ router.get('/:id', OrdersController.getOrder);
 router.delete('/:id', OrdersController.deleteOrder);*/
 
 router.get('/clientTotal', OrdersController.clientTotal);
-/*router.get('/productTotal/:product', OrdersController.productTotal);
-router.get('/topProducts', OrdersController.topProducts);*/
+router.get('/productTotal', OrdersController.productTotal);
+//router.get('/topProducts', OrdersController.topProducts);
 
 
 // Generic error handling for all routes
