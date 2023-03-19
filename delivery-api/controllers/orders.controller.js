@@ -40,7 +40,20 @@ async function productTotal(req, res, next) {
 }
 
 
+async function topProducts(req, res, next) {
+
+    try {
+        const topProducts = await OrderService.getTopProducts();
+        res.send(topProducts);
+        
+    } catch (error) {
+        next(error);
+    }
+}
+
+
 export default {
     clientTotal,
-    productTotal
+    productTotal,
+    topProducts
 }

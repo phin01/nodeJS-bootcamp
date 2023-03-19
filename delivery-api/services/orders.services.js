@@ -30,7 +30,27 @@ async function getProductTotal(product) {
 }
 
 
+async function getTopProducts() {
+
+    const completedOrders = await OrdersRepository.getCompletedOrders();
+
+    let countProducts = {};
+
+    for (const order of completedOrders) {
+        countProducts[order.produto] = (countProducts[order.produto] || 0) + 1
+    }
+
+    countProducts = Object.entries(countProducts);
+    countProducts.sort(
+        (a, b) => b[1] - a[1]
+    );
+
+    return countProducts;
+}
+
+
 export default {
     getClientTotal,
-    getProductTotal
+    getProductTotal,
+    getTopProducts
 }
