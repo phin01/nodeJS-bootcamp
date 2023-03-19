@@ -8,6 +8,10 @@ router.get('/', OrdersController.getOrders);
 router.get('/:id', OrdersController.getOrder);
 router.delete('/:id', OrdersController.deleteOrder);
 
+router.get('/clientTotal/:client', OrdersController.clientTotal);
+router.get('/productTotal/:product', OrdersController.productTotal);
+router.get('/topProducts', OrdersController.topProducts);
+
 
 // Generic error handling for all routes
 router.use((err, req, res, next) => {
