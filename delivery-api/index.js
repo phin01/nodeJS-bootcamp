@@ -1,5 +1,6 @@
 import express from "express";
 import winston from "winston";
+import ordersRouter from './routes/orders.routes.js';
 
 global.fileName = 'pedidos.json';
 
@@ -26,6 +27,8 @@ global.logger = winston.createLogger({
 
 const app = new express();
 app.use(express.json());
+
+app.use('/orders', ordersRouter);
 
 app.listen(3000, async () => {
 
